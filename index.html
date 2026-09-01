@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Printer</title>
+    
+    <!-- Link Manifest PWA -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Ikon Khusus iOS / Safari (iPhone) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+
+    <!-- Ikon Standar Browser & Android PWA -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+
+    <!-- Pengaturan Warna Bar & Mode PWA -->
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <style>
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            overflow: hidden; 
+            background-color: #ffffff; 
+        }
+        iframe { 
+            border: none; 
+            width: 100%; 
+            height: 100%; 
+        }
+        
+        /* Tombol PWA Cadangan di Layar Utama */
+        #pwaInstallContainer {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            border: 2px solid #4A90E2;
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: none; /* Sembunyikan secara bawaan */
+            z-index: 99999;
+            align-items: center;
+            gap: 15px;
+            font-family: sans-serif;
+            width: 85%;
+            max-width: 400px;
+            justify-content: space-between;
+        }
+        .pwa-text-box h4 { margin: 0; font-size: 14px; color: #333; }
+        .pwa-text-box p { margin: 2px 0 0 0; font-size: 11px; color: #666; }
+        #btnPwaAction {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pop-up Tombol Buatan Sendiri untuk Memicu Jendela Install Asli Android -->
+    <div id="pwaInstallContainer">
+        <div class="pwa-text-box">
+            <h4>Install History Printer</h4>
+            <p>Pasang di desktop layar utama HP Anda.</p>
+        </div>
+        <button id="btnPwaAction">Install</button>
+    </div>
+
+    <iframe 
+        src="https://script.google.com/a/macros/rabdurand.co.id/s/AKfycbyYiIbzy-zf9Hrt81pnl3YPIiFei-q7TiFKe68cm1sg-t5ZYnwWLpZagIkkf2lBMuf-Vg/exec"
+        allow="geolocation *; camera *; microphone *"
+        allowfullscreen>
+    </iframe>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        let deferredPrompt;
+        const installContainer = document.getElementById('pwaInstallContainer');
+        const installBtn = document.getElementById('btnPwaAction');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Tampilkan pop-up buatan di layar bawah
+            installContainer.style.display = 'flex';
+        });
+
+        // Picu prompt saat tombol install buatan kita diklik
+        installBtn.addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User sukses menginstall aplikasi');
+                    }
+                    deferredPrompt = null;
+                    installContainer.style.display = 'none';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
